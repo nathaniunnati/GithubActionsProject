@@ -1,4 +1,4 @@
-name: Build and Push to ECR
+name: Build, Push to ECR, Deploy to ECS
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,7 +24,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Login to Amazon ECR
-        id: login-ecr   # ✅ IMPORTANT ADD THIS
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build Docker image
@@ -37,6 +37,13 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push \
-          ${{ steps.login-ecr.outputs.registry }}/node-ecr-app:latest
+          docker push ${{ steps.login-ecr.outputs.registry }}/node-ecr-app:latest
 
+      - name: Deploy to ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          cluster: node-fargate-clusterbusy-ostrich-6ev80p
+          service: node-fargate-task-service 
+          task-definition: node-fargate-task:1
+          image: ${{ steps.login-ecr.outputs.registry }}/node-ecr-app:latest
+          wait-for-service-stability: true
