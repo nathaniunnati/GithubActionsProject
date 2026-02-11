@@ -44,7 +44,6 @@ jobs:
         with:
           cluster: arn:aws:ecs:eu-west-2:997753278599:cluster/node-fargate-clusterbusy-ostrich-6ev80p
           service: arn:aws:ecs:eu-west-2:997753278599:service/node-fargate-clusterbusy-ostrich-6ev80p/node-fargate-task-service
-          task-definition: arn:aws:ecs:eu-west-2:997753278599:task-definition/node-fargate-task:1
+          task-definition: .github/ecs/task-definition.json
           image: ${{ steps.login-ecr.outputs.registry }}/node-ecr-app:latest
           wait-for-service-stability: true
-
